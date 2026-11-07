@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Tech Dada - 8th, 9th & 10th Standard Study Notes, Support & AI Tutor</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- jsPDF for Real Native PDF Generation & Viewing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css?v=3.2">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-indigo-600 selection:text-white">
+
+  <!-- ================= TOP NOTIFICATION TOAST CONTAINER ================= -->
+  <div id="toastContainer" class="fixed top-4 right-4 sm:top-5 sm:right-5 z-[100] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-3 sm:px-0"></div>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer" onclick="AppState.switchView('home'); NotesModule.backToStandards();">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25 animate-pulse-subtle">
+          <i data-lucide="rocket" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+        </div>
+        <div>
+          <span class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 flex items-center gap-1.5">
+            Tech <span class="text-indigo-600">Dada</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hidden sm:inline-block">E-Learning</span>
+          </span>
+          <p class="text-[11px] font-semibold text-slate-500 hidden sm:block">8th, 9th & 10th Standard Study Hub</p>
+        </div>
+      </div>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-1 lg:gap-2 text-sm font-semibold text-slate-600">
+        <button onclick="AppState.switchView('home'); NotesModule.backToStandards();" data-nav-view="home" class="px-3.5 py-2 rounded-xl hover:bg-slate-100 transition-colors flex items-center gap-1.5 text-indigo-600 font-bold">
+          <i data-lucide="home" class="w-4 h-4"></i>
+          <span>Home</span>
+        </button>
+
+        <button onclick="ProblemsModule.openProblemModal();" class="px-3.5 py-2 rounded-xl hover:bg-slate-100 text-slate-700 transition-colors flex items-center gap-1.5">
+          <i data-lucide="help-circle" class="w-4 h-4 text-amber-500"></i>
+          <span>Share Problem to Dada</span>
+        </button>
+
+        <button onclick="AIChatModule.toggleChat();" class="px-3.5 py-2 rounded-xl hover:bg-slate-100 text-slate-700 transition-colors flex items-center gap-1.5">
+          <i data-lucide="bot" class="w-4 h-4 text-indigo-600"></i>
+          <span>Dada AI Tutor</span>
+        </button>
+
+        <!-- Admin Only Dashboard Tab -->
+        <button id="navAdminTabBtn" onclick="AppState.switchView('admin-panel')" data-nav-view="admin-panel" class="hidden px-3.5 py-2 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors flex items-center gap-1.5">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-600"></i>
+          <span>Admin Dashboard</span>
+        </button>
+      </nav>
+
+      <!-- Right Action Items: Notifications & Role Switcher -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Notification Bell Button -->
+        <button onclick="NotificationsModule.toggleDrawer()" title="Notifications" class="relative p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all focus:outline-none">
+          <i data-lucide="bell" class="w-5 h-5"></i>
+          <span class="notification-badge-count absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-black hidden items-center justify-center shadow-md animate-bounce">
+            0
+          </span>
+        </button>
+
+        <!-- Current Role Badge / Switcher Button -->
+        <button onclick="AppState.openRoleSwitcherModal()" id="currentRoleBadge" class="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all border border-slate-200">
+          <i data-lucide="user" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-600"></i>
+          <span id="currentRoleText">Student Mode</span>
+          <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5 text-slate-400"></i>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MOBILE NAVIGATION DRAWER ================= -->
+  <div id="mobileNavOverlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+  <aside id="mobileNavDrawer" class="fixed top-0 left-0 bottom-0 w-72 max-w-[85vw] bg-white z-50 shadow-2xl p-6 flex flex-col justify-between transform -translate-x-full transition-transform duration-300">
+    <div>
+      <div class="flex items-center justify-between pb-5 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+            <i data-lucide="rocket" class="w-5 h-5"></i>
+          </div>
+          <span class="font-black text-lg text-slate-900">Tech Dada</span>
+        </div>
+        <button onclick="document.getElementById('mobileNavDrawer').classList.add('-translate-x-full'); document.getElementById('mobileNavOverlay').classList.add('hidden');" class="p-2 text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <nav class="mt-6 flex flex-col gap-2 font-semibold text-slate-700">
+        <button onclick="AppState.switchView('home'); NotesModule.backToStandards(); document.getElementById('mobileNavDrawer').classList.add('-translate-x-full'); document.getElementById('mobileNavOverlay').classList.add('hidden');" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 text-left">
+          <i data-lucide="home" class="w-5 h-5 text-indigo-600"></i>
+          <span>Home</span>
+        </button>
+        <button onclick="ProblemsModule.openProblemModal(); document.getElementById('mobileNavDrawer').classList.add('-translate-x-full'); document.getElementById('mobileNavOverlay').classList.add('hidden');" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 text-left">
+          <i data-lucide="help-circle" class="w-5 h-5 text-amber-500"></i>
+          <span>Share Problem to Dada</span>
+        </button>
+        <button onclick="AIChatModule.toggleChat(); document.getElementById('mobileNavDrawer').classList.add('-translate-x-full'); document.getElementById('mobileNavOverlay').classList.add('hidden');" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 text-left">
+          <i data-lucide="bot" class="w-5 h-5 text-purple-600"></i>
+          <span>Dada AI Tutor</span>
+        </button>
+        <button id="mobileNavAdminTabBtn" onclick="AppState.switchView('admin-panel'); document.getElementById('mobileNavDrawer').classList.add('-translate-x-full'); document.getElementById('mobileNavOverlay').classList.add('hidden');" class="hidden flex items-center gap-3 p-3 rounded-xl bg-amber-50 text-amber-900 text-left">
+          <i data-lucide="shield-check" class="w-5 h-5 text-amber-600"></i>
+          <span>Admin Dashboard</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="pt-6 border-t border-slate-100">
+      <button onclick="AppState.openRoleSwitcherModal(); document.getElementById('mobileNavDrawer').classList.add('-translate-x-full'); document.getElementById('mobileNavOverlay').classList.add('hidden');" class="w-full py-2.5 px-3 rounded-xl bg-slate-100 text-slate-800 font-bold text-xs flex items-center justify-center gap-2">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        <span>Switch User / Admin Role</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ================= NOTIFICATIONS DRAWER ================= -->
+  <div id="drawerOverlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+  <aside id="notificationsDrawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-96 bg-white z-50 shadow-2xl p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300">
+    <div class="flex flex-col h-full">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <i data-lucide="bell" class="w-5 h-5 text-indigo-600"></i>
+          <h3 class="font-bold text-lg text-slate-900">Notifications</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="NotificationsModule.markAllAsRead()" title="Mark all as read" class="text-xs text-indigo-600 font-bold hover:underline">
+            Mark all read
+          </button>
+          <button onclick="NotificationsModule.closeDrawer()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div id="notificationsListContainer" class="flex-1 overflow-y-auto py-4 space-y-3">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN APP CONTAINER ================= -->
+  <main class="flex-1">
+
+    <!-- ================= VIEW 1: HOME (STANDARDS & NOTES) ================= -->
+    <div id="mainHomeView">
+      
+      <!-- HERO BANNER -->
+      <section class="relative overflow-hidden bg-gradient-to-b from-indigo-950 via-slate-900 to-slate-900 text-white pt-12 pb-20 sm:pt-16 sm:pb-28">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-10 right-10 w-72 h-72 bg-pink-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-semibold text-indigo-200 mb-6 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Maharashtra State Board (SSC) 8th, 9th & 10th Standards</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight">
+            Learn Smarter, Score Higher With <br class="hidden sm:inline">
+            <span class="bg-gradient-to-r from-amber-300 via-pink-400 to-indigo-300 bg-clip-text text-transparent">
+              Your Trusted Mentor Tech Dada! 🚀
+            </span>
+          </h1>
+
+          <p class="mt-4 sm:mt-6 text-sm sm:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            High-quality handwritten PDF notes for Marathi and Semi-English mediums, instant problem resolution with Dada, and 24/7 AI tutor guidance.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <a href="#standardsGridSection" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-bold text-sm sm:text-base shadow-xl shadow-indigo-500/30 hover:scale-105 transition-all flex items-center justify-center gap-2">
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+              <span>Select Standard & Notes</span>
+            </a>
+
+            <button onclick="ProblemsModule.openProblemModal()" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md text-white font-bold text-sm sm:text-base hover:scale-105 transition-all flex items-center justify-center gap-2">
+              <i data-lucide="message-circle-question" class="w-5 h-5 text-amber-400"></i>
+              <span>Share Problem to Dada</span>
+            </button>
+
+            <button onclick="AIChatModule.toggleChat()" class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm sm:text-base shadow-lg shadow-amber-500/30 hover:scale-105 transition-all flex items-center justify-center gap-2">
+              <i data-lucide="sparkles" class="w-5 h-5"></i>
+              <span>Chat with Dada AI</span>
+            </button>
+          </div>
+
+          <div class="mt-12 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto text-left">
+            <div class="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <i data-lucide="file-check-2" class="w-6 h-6 text-indigo-400 mb-2"></i>
+              <h4 class="font-bold text-sm">Real PDF Files</h4>
+              <p class="text-xs text-slate-400">View and download exact uploaded PDF notes.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <i data-lucide="languages" class="w-6 h-6 text-amber-400 mb-2"></i>
+              <h4 class="font-bold text-sm">Marathi & Semi-Eng</h4>
+              <p class="text-xs text-slate-400">Dedicated curriculum for both mediums.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <i data-lucide="send" class="w-6 h-6 text-emerald-400 mb-2"></i>
+              <h4 class="font-bold text-sm">Direct Dada Support</h4>
+              <p class="text-xs text-slate-400">Attach problem images and receive replies.</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+              <i data-lucide="bot" class="w-6 h-6 text-pink-400 mb-2"></i>
+              <h4 class="font-bold text-sm">Basic & Advanced AI</h4>
+              <p class="text-xs text-slate-400">Answers all questions with derivations & proofs.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- STANDARDS CARDS SECTION -->
+      <section id="standardsGridSection" class="py-12 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div id="homeStandardsSection">
+          <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 mb-3">
+              <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+              Step 1: Choose Your Class
+            </span>
+            <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              Select Your Standard 📚
+            </h2>
+            <p class="text-slate-500 text-xs sm:text-base mt-2">
+              Choose your standard (8th, 9th, or 10th) to select Marathi or Semi-English medium notes and study materials.
+            </p>
+          </div>
+
+          <div id="standardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <!-- Rendered by NotesModule.renderStandards() -->
+          </div>
+        </div>
+
+        <!-- ================= NOTES REPOSITORY SECTION ================= -->
+        <div id="notesRepositorySection" class="hidden">
+          
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6 sm:mb-8 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-semibold">
+              <button onclick="NotesModule.backToStandards()" class="text-indigo-600 hover:underline flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span>Standards</span>
+              </button>
+              <span class="text-slate-300">/</span>
+              <span id="notesBreadcrumbStd" class="text-slate-700 font-bold">10th Standard</span>
+              <span class="text-slate-300">/</span>
+              <span id="notesBreadcrumbMedium" class="text-indigo-700 font-bold bg-indigo-50 px-2.5 py-1 rounded-lg">Semi-English</span>
+            </div>
+
+            <button id="adminAddNoteBtn" onclick="NotesModule.openAddNoteModal()" class="hidden px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md flex items-center gap-2">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>+ Add PDF Note</span>
+            </button>
+          </div>
+
+          <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <div>
+                <h2 id="notesCurrentHeading" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  10th Standard Notes 📚
+                </h2>
+                <p id="notesCurrentDesc" class="text-xs sm:text-sm text-slate-500 mt-1">
+                  Official high-yield handwritten & digital PDF notes uploaded by Tech Dada.
+                </p>
+              </div>
+
+              <div class="w-full md:w-80 relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input id="notesSearchInput" type="text" placeholder="Search notes, subjects, chapters..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+              </div>
+            </div>
+
+            <div id="subjectFilterPills" class="flex items-center gap-2 overflow-x-auto py-4 scrollbar-none">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-400 font-semibold px-1">
+              <span id="notesCountBadge">0 notes found</span>
+              <span>Available in real downloadable PDF formats</span>
+            </div>
+          </div>
+
+          <div id="notesListCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Rendered dynamically by NotesModule.renderNotesList() -->
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= SHARE PROBLEM CALLOUT ================= -->
+      <section class="py-14 sm:py-16 bg-gradient-to-br from-indigo-50 via-white to-amber-50 border-y border-indigo-100">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center mx-auto mb-6 shadow-xl shadow-amber-500/20 animate-bounce">
+            <i data-lucide="help-circle" class="w-8 h-8"></i>
+          </div>
+
+          <h2 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            Stuck on a Problem? Share It With Dada! 🤝
+          </h2>
+          <p class="text-xs sm:text-base text-slate-600 max-w-2xl mx-auto mt-3 leading-relaxed">
+            Trouble with a geometry theorem or science derivation? Type your doubt or snap a photo of the textbook question and send it to Tech Dada. When Dada answers, you will receive an instant notification!
+          </p>
+
+          <div class="mt-8">
+            <button onclick="ProblemsModule.openProblemModal()" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-indigo-600/30 hover:scale-105 transition-all inline-flex items-center justify-center gap-3">
+              <i data-lucide="send" class="w-5 h-5"></i>
+              <span>Share the Problem to the Dada 🚀</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ================= VIEW 2: ADMIN DASHBOARD VIEW ================= -->
+    <div id="adminDashboardView" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-10 rounded-3xl shadow-xl mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-slate-950 inline-block mb-3">
+            👑 Tech Dada Admin Control
+          </span>
+          <h2 class="text-2xl sm:text-4xl font-black tracking-tight">
+            Administration Dashboard
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 mt-2">
+            Upload genuine PDF notes, manage student questions, and send direct replies.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button onclick="NotesModule.openAddNoteModal()" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>+ Add New PDF Note</span>
+          </button>
+          <button onclick="AppState.switchToUserMode()" class="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm flex items-center gap-2">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+            <span>Switch to Student View</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total PDF Notes</p>
+            <h3 id="adminStatTotalNotes" class="text-3xl font-black text-slate-900 mt-1">0</h3>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <i data-lucide="file-text" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Downloads</p>
+            <h3 id="adminStatTotalDownloads" class="text-3xl font-black text-slate-900 mt-1">0</h3>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <i data-lucide="arrow-down-circle" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending Questions</p>
+            <h3 id="adminStatPendingProblems" class="text-3xl font-black text-amber-600 mt-1">0</h3>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <i data-lucide="message-square" class="w-6 h-6"></i>
+          </div>
+        </div>
+      </div>
+
+      <div id="adminProblemsSectionWrapper" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm mb-10">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-xl font-black text-slate-900">
+                Student Problems Inbox
+              </h3>
+              <span id="adminPendingProblemsBadge" class="hidden px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                0 Pending
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              Questions submitted by students via "Share the problem to the Dada".
+            </p>
+          </div>
+        </div>
+
+        <div id="adminProblemsList" class="space-y-4">
+          <!-- Rendered by ProblemsModule.renderAdminProblemsList() -->
+        </div>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-100 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-slate-500">
+        <div>
+          <span class="font-bold text-slate-700">Reset Demo Data:</span>
+          <p>Restore original sample standards, notes, and questions.</p>
+        </div>
+        <button onclick="AppState.resetAllData()" class="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-slate-300 font-bold transition-colors">
+          Reset All Data
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ================= FLOATING AI ASSISTANT (DADA AI) ================= -->
+  <button onclick="AIChatModule.toggleChat()" title="Chat with Tech Dada AI" class="fixed bottom-20 md:bottom-8 right-5 z-40 w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white flex items-center justify-center shadow-2xl shadow-amber-500/40 hover:scale-110 active:scale-95 transition-all">
+    <i data-lucide="bot" class="w-7 h-7"></i>
+    <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></span>
+  </button>
+
+  <!-- Expandable AI Chat Window -->
+  <div id="aiChatWidget" class="fixed bottom-24 md:bottom-24 right-3 sm:right-6 z-40 w-[94vw] sm:w-[450px] h-[600px] max-h-[84vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden hidden transition-all">
+    
+    <!-- AI Header -->
+    <div class="p-3.5 sm:p-4 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+          🤖
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h4 class="font-bold text-xs sm:text-sm">Tech Dada AI Tutor</h4>
+            <div id="aiActiveLevelBadge" class="text-[10px] font-bold text-amber-300 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <span>Advanced</span>
+            </div>
+          </div>
+          <p class="text-[10px] sm:text-[11px] text-slate-300">Basic & Advanced Doubt Solver</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button onclick="AIChatModule.openKeyModal()" title="Connect Google Gemini Key" class="p-1.5 text-slate-400 hover:text-amber-300 rounded-lg transition-colors">
+          <i data-lucide="key" class="w-4 h-4"></i>
+        </button>
+        <button onclick="AIChatModule.clearChat()" title="Clear Chat" class="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors">
+          <i data-lucide="trash" class="w-4 h-4"></i>
+        </button>
+        <button onclick="AIChatModule.toggleChat()" class="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- AI Level Selector (Basic vs Advanced) -->
+    <div class="px-3 py-2 bg-slate-900 text-slate-300 border-b border-slate-800 flex items-center justify-between text-xs">
+      <span class="text-[11px] font-semibold text-slate-400">Answer Level:</span>
+      <div class="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700">
+        <button id="aiLevelBasicBtn" onclick="AIChatModule.setLevel('basic')" class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition-all">
+          🟢 Basic Level
+        </button>
+        <button id="aiLevelAdvBtn" onclick="AIChatModule.setLevel('advanced')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow-sm transition-all">
+          🚀 Advanced Level
+        </button>
+      </div>
+    </div>
+
+    <!-- Suggested Quick Prompts -->
+    <div class="p-2 bg-indigo-50/60 border-b border-indigo-100 flex items-center gap-1.5 overflow-x-auto text-[11px] font-semibold text-indigo-700 scrollbar-none">
+      <span class="shrink-0 text-slate-400 text-[10px] font-bold">Try:</span>
+      <button onclick="AIChatModule.openChatWithPrompt('Explain the lineage of human evolution', 'advanced')" class="px-2.5 py-1 rounded-full bg-white border border-indigo-200 hover:bg-indigo-100 shrink-0">
+        🧬 Explain Lineage
+      </button>
+      <button onclick="AIChatModule.openChatWithPrompt('Prove Pythagoras Theorem step by step with similarity', 'advanced')" class="px-2.5 py-1 rounded-full bg-white border border-indigo-200 hover:bg-indigo-100 shrink-0">
+        📐 Pythagoras Proof
+      </button>
+      <button onclick="AIChatModule.openChatWithPrompt('Explain Kepler\'s Three Laws simply', 'basic')" class="px-2.5 py-1 rounded-full bg-white border border-indigo-200 hover:bg-indigo-100 shrink-0">
+        🪐 Kepler's Laws (Basic)
+      </button>
+      <button onclick="AIChatModule.openChatWithPrompt('Derive quadratic formula using completing square method', 'advanced')" class="px-2.5 py-1 rounded-full bg-white border border-indigo-200 hover:bg-indigo-100 shrink-0">
+        🔢 Quadratic Derivation
+      </button>
+    </div>
+
+    <!-- AI Messages Area -->
+    <div id="aiChatMessages" class="flex-1 p-3.5 sm:p-4 overflow-y-auto bg-slate-50/50">
+      <!-- Chat history rendered dynamically -->
+    </div>
+
+    <!-- AI Chat Input Box with Voice Mic -->
+    <div class="p-2.5 sm:p-3 bg-white border-t border-slate-200 flex items-center gap-1.5 sm:gap-2">
+      <button id="aiVoiceMicBtn" onclick="AIChatModule.toggleVoiceInput()" title="Speak your question" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-all">
+        <i data-lucide="mic" class="w-4 h-4"></i>
+      </button>
+
+      <input id="aiChatInput" type="text" placeholder="Ask any basic or advanced question..." class="flex-1 py-2 px-3 sm:px-3.5 rounded-xl bg-slate-100 border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+      
+      <button onclick="AIChatModule.sendMessage()" class="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all shadow-md">
+        <i data-lucide="send" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ================= MOBILE BOTTOM NAVIGATION BAR ================= -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-2 flex items-center justify-around text-center text-[10px] font-bold text-slate-500 shadow-lg">
+    <button onclick="AppState.switchView('home'); NotesModule.backToStandards();" class="flex flex-col items-center gap-1 py-1 px-2 text-indigo-600">
+      <i data-lucide="home" class="w-5 h-5"></i>
+      <span>Home</span>
+    </button>
+    <button onclick="ProblemsModule.openProblemModal();" class="flex flex-col items-center gap-1 py-1 px-2 text-slate-600">
+      <i data-lucide="help-circle" class="w-5 h-5 text-amber-500"></i>
+      <span>Ask Dada</span>
+    </button>
+    <button onclick="AIChatModule.toggleChat();" class="flex flex-col items-center gap-1 py-1 px-2 text-slate-600">
+      <i data-lucide="bot" class="w-5 h-5 text-purple-600"></i>
+      <span>Dada AI</span>
+    </button>
+    <button onclick="NotificationsModule.toggleDrawer();" class="relative flex flex-col items-center gap-1 py-1 px-2 text-slate-600">
+      <i data-lucide="bell" class="w-5 h-5"></i>
+      <span>Alerts</span>
+      <span id="mobileNotifBadge" class="hidden absolute top-0 right-2 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-black items-center justify-center">
+        0
+      </span>
+    </button>
+  </nav>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div>
+        <div class="flex items-center justify-center sm:justify-start gap-2 text-white font-bold text-lg mb-1">
+          <i data-lucide="rocket" class="w-5 h-5 text-indigo-400"></i>
+          <span>Tech Dada</span>
+        </div>
+        <p class="text-xs text-slate-400">
+          Empowering 8th, 9th & 10th standard students with high quality notes, mentorship, and AI tools.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-4 text-xs font-semibold">
+        <button onclick="AppState.openRoleSwitcherModal()" class="hover:text-white transition-colors">
+          Admin Portal
+        </button>
+        <span>•</span>
+        <button onclick="ProblemsModule.openProblemModal()" class="hover:text-white transition-colors">
+          Share Problem
+        </button>
+        <span>•</span>
+        <button onclick="AIChatModule.toggleChat()" class="hover:text-white transition-colors">
+          Dada AI Tutor
+        </button>
+      </div>
+    </div>
+    <div class="text-center text-[11px] text-slate-600 mt-8 pt-6 border-t border-slate-800/80">
+      © 2026 Tech Dada Platform • Built for 8th, 9th & 10th Standard Students
+    </div>
+  </footer>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. MEDIUM SELECTION MODAL -->
+  <div id="mediumSelectModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 transform transition-all animate-float">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Step 2 of 2</span>
+          <h3 id="mediumModalTitle" class="text-xl sm:text-2xl font-black text-slate-900">
+            Select Medium
+          </h3>
+        </div>
+        <button onclick="NotesModule.closeMediumSelector()" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p id="mediumModalSubtitle" class="text-xs sm:text-sm text-slate-500 my-4">
+        Please choose your medium of instruction:
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Marathi Medium Card -->
+        <div onclick="NotesModule.selectMedium('marathi')" class="group p-5 rounded-2xl bg-gradient-to-b from-amber-50 to-orange-50/50 border-2 border-amber-200 hover:border-amber-500 hover:shadow-xl hover:shadow-amber-500/10 cursor-pointer transition-all flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <i data-lucide="book-marked" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-black text-lg text-amber-950">Marathi Medium</h4>
+            <p class="text-xs text-amber-800 font-semibold mt-0.5">मराठी माध्यम</p>
+            <p class="text-xs text-amber-700/80 mt-2">
+              Full curriculum in pure Marathi with solved textbook exercises.
+            </p>
+          </div>
+          <button class="mt-4 w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow">
+            Select This Medium →
+          </button>
+        </div>
+
+        <!-- Semi-English Medium Card -->
+        <div onclick="NotesModule.selectMedium('semi-english')" class="group p-5 rounded-2xl bg-gradient-to-b from-blue-50 to-indigo-50/50 border-2 border-blue-200 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 cursor-pointer transition-all flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-blue-600 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <i data-lucide="globe" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-black text-lg text-blue-950">Semi-English Medium</h4>
+            <p class="text-xs text-blue-800 font-semibold mt-0.5">सेमी इंग्रजी माध्यम</p>
+            <p class="text-xs text-blue-700/80 mt-2">
+              Science & Maths in English, Social Sciences in Marathi.
+            </p>
+          </div>
+          <button class="mt-4 w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow">
+            Select This Medium →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. "SHARE THE PROBLEM TO THE DADA" MODAL -->
+  <div id="shareProblemModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-8 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+            <i data-lucide="help-circle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg sm:text-xl font-black text-slate-900">Share Problem to Dada</h3>
+            <p class="text-xs text-slate-500">Ask your study questions directly 🤝</p>
+          </div>
+        </div>
+        <button onclick="ProblemsModule.closeProblemModal()" class="p-2 text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="shareProblemForm" class="mt-5 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Your Full Name *</label>
+          <input id="problemStudentName" type="text" required placeholder="e.g. Rohan Patil or Snehal Kadam" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Standard & Medium *</label>
+          <select id="problemStandardSelect" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600">
+            <option value="10th Standard (Marathi Medium)">10th Standard (Marathi Medium)</option>
+            <option value="10th Standard (Semi-English)">10th Standard (Semi-English)</option>
+            <option value="9th Standard (Marathi Medium)">9th Standard (Marathi Medium)</option>
+            <option value="9th Standard (Semi-English)">9th Standard (Semi-English)</option>
+            <option value="8th Standard (Marathi Medium)">8th Standard (Marathi Medium)</option>
+            <option value="8th Standard (Semi-English)">8th Standard (Semi-English)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">
+            Enter the Problem Message *
+          </label>
+          <textarea id="problemMessageText" rows="4" required placeholder="Describe your doubt in detail..." class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">
+            Add the Problem Image (Optional)
+          </label>
+          <div class="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-2xl p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
+            <input id="problemImageInput" type="file" accept="image/*" class="hidden">
+            <label for="problemImageInput" class="cursor-pointer flex flex-col items-center justify-center">
+              <i data-lucide="image-plus" class="w-8 h-8 text-indigo-500 mb-1"></i>
+              <span class="text-xs font-bold text-indigo-600">Click to upload question image</span>
+              <span class="text-[11px] text-slate-400 mt-0.5">PNG, JPG, or JPEG (Max: 4 MB)</span>
+            </label>
+          </div>
+
+          <div id="problemImagePreviewContainer" class="hidden mt-3 p-3 bg-indigo-50/60 rounded-2xl border border-indigo-100 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <img id="problemImagePreview" src="" alt="Preview" class="w-14 h-14 object-cover rounded-xl border border-slate-200">
+              <div>
+                <p id="problemImageName" class="text-xs font-bold text-slate-800 line-clamp-1">Image selected</p>
+                <span class="text-[10px] text-emerald-600 font-bold">✓ Attached ready to send</span>
+              </div>
+            </div>
+            <button type="button" onclick="ProblemsModule.removeImagePreview()" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center gap-2">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Send to Dada 🚀</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. ADMIN ADD/EDIT NOTE MODAL -->
+  <div id="noteFormModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-8 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+            <i data-lucide="file-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="noteFormModalTitle" class="text-lg sm:text-xl font-black text-slate-900">
+              Add New PDF Note
+            </h3>
+            <p class="text-xs text-slate-500">Tech Dada Admin Upload Portal</p>
+          </div>
+        </div>
+        <button onclick="NotesModule.closeNoteFormModal()" class="p-2 text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="noteForm" class="mt-5 space-y-4">
+        <input type="hidden" id="noteFormId">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Standard *</label>
+            <select id="noteFormStandard" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm">
+              <option value="std-8">8th Standard</option>
+              <option value="std-9">9th Standard</option>
+              <option value="std-10">10th Standard</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Medium *</label>
+            <select id="noteFormMedium" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm">
+              <option value="marathi">Marathi Medium</option>
+              <option value="semi-english">Semi-English Medium</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Subject *</label>
+            <input id="noteFormSubject" type="text" required placeholder="e.g. Science Part 1" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Chapter *</label>
+            <input id="noteFormChapter" type="text" required placeholder="e.g. Chapter 1" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Note Title *</label>
+          <input id="noteFormTitle" type="text" required placeholder="e.g. Gravitation - Full Notes" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Page Count</label>
+            <input id="noteFormPages" type="number" min="1" value="12" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Upload Real PDF File *</label>
+            <input id="noteFormPdfFile" type="file" accept=".pdf" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+            <p id="noteFormPdfStatus" class="text-[11px] text-slate-500 mt-1 font-medium">Choose an original PDF file from your device.</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Description & Summary</label>
+          <textarea id="noteFormDesc" rows="3" placeholder="Summary of formulas, concepts, and high-yield questions included..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm"></textarea>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            <span>Save Note with PDF</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. IN-APP PDF VIEWER MODAL -->
+  <div id="pdfViewerModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden items-center justify-center p-2 sm:p-6">
+    <div class="bg-white rounded-3xl max-w-5xl w-full h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <!-- Top Bar -->
+      <div class="p-3.5 sm:p-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 id="pdfViewerTitle" class="font-bold text-sm sm:text-base line-clamp-1">Notes Document</h3>
+          <p id="pdfViewerSubject" class="text-xs text-slate-400">PDF Reader</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="pdfViewerNewTabBtn" class="hidden px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Open in Tab</span>
+          </button>
+          <button id="pdfViewerDownloadBtn" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Download</span>
+          </button>
+          <button onclick="NotesModule.closePDFViewer()" class="p-2 text-slate-400 hover:text-white rounded-lg">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Viewer Content Frame -->
+      <div id="pdfViewerContent" class="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-100">
+        <!-- Rendered by NotesModule.viewNotePDF() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. ADMIN REPLY TO STUDENT MODAL -->
+  <div id="adminReplyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Reply to Student</h3>
+          <p class="text-xs text-slate-500">Tech Dada Official Response</p>
+        </div>
+        <button onclick="ProblemsModule.closeReplyModal()" class="p-2 text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs sm:text-sm">
+        <div class="flex items-center justify-between font-bold text-slate-800 mb-1">
+          <span id="replyModalStudentName">Student Name</span>
+          <span id="replyModalStudentStd" class="text-indigo-600">Standard</span>
+        </div>
+        <p id="replyModalStudentMsg" class="text-slate-600 whitespace-pre-line mt-2"></p>
+      </div>
+
+      <form id="adminReplyForm" class="mt-4 space-y-4">
+        <input type="hidden" id="replyModalProblemId">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Dada's Reply Text *</label>
+          <textarea id="replyModalText" rows="5" required placeholder="Explain step-by-step or refer the student to specific note pages..." class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Send Reply to Student 🚀</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. USER PROBLEM DETAIL & STATUS MODAL -->
+  <div id="userProblemViewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Your Problem & Dada's Response</h3>
+          <p class="text-xs text-slate-500">Problem & Solution Status</p>
+        </div>
+        <button onclick="NotificationsModule.closeUserProblemViewModal()" class="p-2 text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="userProblemViewContent" class="mt-4">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. IMAGE LIGHTBOX MODAL -->
+  <div id="imageLightboxModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="relative max-w-4xl max-h-[90vh] w-full flex items-center justify-center">
+      <button onclick="ProblemsModule.closeLightbox()" class="absolute -top-12 right-0 p-2 text-white/80 hover:text-white">
+        <i data-lucide="x" class="w-7 h-7"></i>
+      </button>
+      <img id="lightboxImage" src="" alt="Zoomed Problem" class="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl">
+    </div>
+  </div>
+
+  <!-- 8. ROLE SWITCHER / ADMIN LOGIN MODAL -->
+  <div id="roleSwitcherModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center">
+      <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="shield" class="w-7 h-7"></i>
+      </div>
+
+      <h3 class="text-xl font-black text-slate-900">Select Role</h3>
+      <p class="text-xs text-slate-500 mt-1 mb-6">Switch between Student Mode and Administrator Mode:</p>
+
+      <div class="space-y-3">
+        <!-- Student Option -->
+        <button onclick="AppState.switchToUserMode()" class="w-full py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+          <i data-lucide="user" class="w-4 h-4 text-indigo-600"></i>
+          <span>Student Mode</span>
+        </button>
+
+        <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-left">
+          <div class="flex items-center gap-1.5 font-bold text-xs text-amber-900 mb-2">
+            <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-600"></i>
+            <span>Admin Access (Tech Dada):</span>
+          </div>
+          <input id="adminPinInput" type="password" placeholder="Enter PIN (Default: dada123)" class="w-full px-3 py-2 rounded-xl bg-white border border-amber-300 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 mb-2">
+          <p id="adminPinError" class="text-[11px] text-rose-600 font-bold hidden mb-2"></p>
+          <button onclick="AppState.switchToAdminMode()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow transition-colors flex items-center justify-center gap-1">
+            <i data-lucide="key" class="w-3.5 h-3.5"></i>
+            <span>Log in as Admin</span>
+          </button>
+        </div>
+      </div>
+
+      <button onclick="AppState.closeRoleSwitcherModal()" class="mt-4 text-xs text-slate-400 hover:underline">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- 9. GEMINI LIVE AI KEY MODAL -->
+  <div id="geminiKeyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-left">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-black text-slate-900">Google Gemini Live AI</h3>
+        </div>
+        <button onclick="AIChatModule.closeKeyModal()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="py-4 space-y-3 text-xs sm:text-sm text-slate-600">
+        <p>
+          Connect a free <strong>Google Gemini API Key</strong> for unlimited real-time AI responses to any advanced question.
+        </p>
+        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-xs text-indigo-900">
+          💡 <em>Without a key, Tech Dada's built-in Multi-Tier AI Engine automatically answers all syllabus questions!</em>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Your Gemini API Key (Optional):</label>
+          <input id="geminiKeyInput" type="password" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <p class="text-[11px] text-slate-400">
+          You can get a free key anytime from <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-indigo-600 font-bold hover:underline">Google AI Studio</a>. Key stays strictly in your local browser.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+        <button onclick="AIChatModule.saveGeminiKey()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow">
+          Save & Connect
+        </button>
+        <button onclick="AIChatModule.closeKeyModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCRIPTS (Cache-Busted v=3.2) ================= -->
+  <script src="js/db.js?v=3.2"></script>
+  <script src="js/data.js?v=3.2"></script>
+  <script src="js/notifications.js?v=3.2"></script>
+  <script src="js/problems.js?v=3.2"></script>
+  <script src="js/notes.js?v=3.2"></script>
+  <script src="js/ai-chat.js?v=3.2"></script>
+  <script src="js/app.js?v=3.2"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>
